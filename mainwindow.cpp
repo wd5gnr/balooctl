@@ -19,8 +19,8 @@ Yes this should use QtDbus but this is a very quick hack. I may or may not
 fix it later.
 */
 
-// Polling time in seconds
-#define SCAN_TIME 10
+// Polling time in seconds (or 0 to operate only on demand)
+#define SCAN_TIME 30
 
 
 #include "mainwindow.h"
@@ -38,7 +38,9 @@ MainWindow::MainWindow(QWidget *parent) :
     updateresult();
     QTimer *timer = new QTimer(this);
      connect(timer, SIGNAL(timeout()), this, SLOT(updateresult()));
+#if SCAN_TIME != 0
      timer->start(SCAN_TIME*1000);
+#endif
 }
 
 
@@ -51,7 +53,9 @@ void MainWindow::updateresult()
     prefix=result.mid(0,8);
     if (prefix=="Indexing") ui->checkBox->setChecked(true); else ui->checkBox->setChecked(false);
     ui->status->setText(result);
+#if SCAN_TIME != 0
     proc.start(cmd);
+#endif
 }
 
 MainWindow::~MainWindow()
@@ -67,9 +71,11 @@ void MainWindow::on_checkBox_clicked(bool checked)
     cmdline+=checked?"resume":"suspend";
     qdbus->start(cmdline);
     qdbus->waitForFinished();
+#if SCAN_TIME != 0
     // need to throw away the possibly stale result
     proc.waitForFinished();
     proc.readAll();
+#endif
     proc.start(cmd);
     updateresult();
 
