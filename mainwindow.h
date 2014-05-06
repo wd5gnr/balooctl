@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QProcess>
 #include <QtDBus/QDBusConnection>
 #include <QtDBus/QDBusInterface>
 
@@ -27,7 +26,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QProcess proc;
     QString cmd;
     QDBusConnection bus;
     QDBusInterface *iface;

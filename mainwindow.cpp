@@ -63,9 +63,6 @@ void MainWindow::updateresult()
     prefix=result.mid(0,8);
     if (prefix=="Indexing") ui->checkBox->setChecked(true); else ui->checkBox->setChecked(false);
     ui->status->setText(result);
-#if SCAN_TIME != 0
-    proc.start(cmd);
-#endif
 }
 
 MainWindow::~MainWindow()
