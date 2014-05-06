@@ -15,4 +15,4 @@ balooctl - Monitor and control baloo file indexing
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Yes this should use QtDbus but this is a very quick hack. I may or may not
-fix it later.
+fix it later. (Note: now uses QtDbus!)
