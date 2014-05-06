@@ -23,6 +23,8 @@ fix it later.
 #define SCAN_TIME 30
 
 
+#include <QtDBus/QDBusMessage>
+#include <QtDBus/QDBusReply>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QTimer>
@@ -30,11 +32,12 @@ fix it later.
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    bus("Session")
 {
+    bus= QDBusConnection::sessionBus();
+    iface= new QDBusInterface("org.kde.baloo.file","/indexer","org.kde.baloo.file",bus,this);
     ui->setupUi(this);
-    cmd="qdbus org.kde.baloo.file /indexer org.kde.baloo.file.statusMessage";
-    proc.start(cmd);
     updateresult();
     QTimer *timer = new QTimer(this);
      connect(timer, SIGNAL(timeout()), this, SLOT(updateresult()));
@@ -48,8 +51,15 @@ void MainWindow::updateresult()
 {
     QString result;
     QString prefix;
-    proc.waitForFinished();
-    result=QString(proc.readAll());
+    QDBusReply<QString> reply=iface->call("statusMessage");
+    if (reply.isValid())
+    {
+        result=reply.value();
+    }
+    else
+    {
+        result=reply.error().message();
+    }
     prefix=result.mid(0,8);
     if (prefix=="Indexing") ui->checkBox->setChecked(true); else ui->checkBox->setChecked(false);
     ui->status->setText(result);
@@ -66,17 +76,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_checkBox_clicked(bool checked)
 {
-    QProcess *qdbus=new QProcess(this);
-    QString cmdline="qdbus org.kde.baloo.file /indexer org.kde.baloo.file.";
-    cmdline+=checked?"resume":"suspend";
-    qdbus->start(cmdline);
-    qdbus->waitForFinished();
-#if SCAN_TIME != 0
-    // need to throw away the possibly stale result
-    proc.waitForFinished();
-    proc.readAll();
-#endif
-    proc.start(cmd);
+    if (checked) iface->call("resume"); else iface->call("suspend");
     updateresult();
 
 }

@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 #include <QProcess>
+#include <QtDBus/QDBusConnection>
+#include <QtDBus/QDBusInterface>
+
 
 namespace Ui {
 class MainWindow;
@@ -26,6 +29,8 @@ private:
     Ui::MainWindow *ui;
     QProcess proc;
     QString cmd;
+    QDBusConnection bus;
+    QDBusInterface *iface;
 };
 
 #endif // MAINWINDOW_H
